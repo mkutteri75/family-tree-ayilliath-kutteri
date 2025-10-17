@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayilliath Kuttyeri Family Tree</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tree-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .generation {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .person-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 15px;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .person-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .person-card.deceased {
+            background: linear-gradient(135deg, #e0e0e0 0%, #b0b0b0 100%);
+        }
+
+        .photo-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid #667eea;
+            background: #f0f0f0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #667eea;
+            background: linear-gradient(135deg, #e3e8f5 0%, #d1d8e8 100%);
+        }
+
+        .edit-photo-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .edit-photo-btn:hover {
+            background: #5568d3;
+        }
+
+        .name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+
+        .spouse {
+            font-size: 0.85em;
+            color: #555;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+
+        .dates {
+            font-size: 0.75em;
+            color: #888;
+        }
+
+        .generation-label {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 20px 0;
+            font-size: 1.2em;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .connector {
+            position: relative;
+        }
+
+        .connector::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: #667eea;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .save-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #5568d3;
+        }
+
+        .cancel-btn {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .cancel-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: #f0f0f0;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #e8ebf7;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .controls button {
+            padding: 12px 24px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #5568d3;
+        }
+
+        @media (max-width: 768px) {
+            .generation {
+                gap: 20px;
+            }
+            .person-card {
+                width: 160px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .controls button {
+                margin: 5px;
+                padding: 10px 16px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌳 Ayilliath Kuttyeri Family Tree</h1>
+        <div class="tree-container">
+            <div class="tree" id="familyTree"></div>
+        </div>
+    </div>
+
+    <div id="photoModal" class="modal">
+        <div class="modal-content">
+            <h2>Update Photo</h2>
+            <p id="modalPersonName" style="color: #667eea; font-weight: bold; margin-bottom: 15px;"></p>
+            <div class="file-input-wrapper">
+                <input type="file" id="photoInput" accept="image/*">
+                <label for="photoInput" class="file-input-label">
+                    📷 Choose Photo
+                </label>
+            </div>
+            <input type="text" id="photoUrl" placeholder="Or paste image URL">
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="savePhoto()">Save</button>
+                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const familyData = {
+            gen1: [
+                {
+                    id: 'A3740',
+                    name: 'Sarojini Amma Ayilliath Kuttyeri',
+                    spouse: 'KunjiKrishnan Nambiar Kaitheri Kandoth',
+                    death: '26 May 2013',
+                    spouseDeath: '02 May 1964',
+                    children: ['A6848', 'A3751', 'A3752', 'A4146', 'A4145', 'A4147', 'A3753']
+                }
+            ],
+            gen2: [
+                { id: 'A6848', name: 'Radha Ayilliath Kuttyeri', status: 'Unmarried', death: '15 Sep 2014' },
+                { id: 'A3751', name: 'Girija Ayilliath Kuttyeri', spouse: 'Janardhanan Kizhakke Veetil', children: ['A5988', 'A5989', 'A5990'] },
+                { id: 'A3752', name: 'KunjiKrishnan Nambiar Ayilliath Kuttyeri', spouse: 'Geetha Velluva Pilakkandi', children: ['A5440', 'A5992'] },
+                { id: 'A4146', name: 'Sathidevi Ayilliath Kuttyeri', spouse: 'Raghavan T.V' },
+                { id: 'A4145', name: 'Jayarajan Ayilliath Kuttyeri', spouse: 'Geetha Puthanpurayil' },
+                { id: 'A4147', name: 'Remani Ayilliath Kuttyeri', spouse: 'Premarajan Puthiyedath Poyil', children: ['A5985', 'A5986'] },
+                { id: 'A3753', name: 'Geetha Ayilliath Kuttyeri', spouse: 'Rajan Velluva Kannoth', children: ['A5996', 'A5997'] }
+            ],
+            gen3: [
+                { id: 'A5988', name: 'Jayakrishnan Ayilliath Kuttyeri', spouse: 'Manju', children: ['A6271', 'A6882'] },
+                { id: 'A5989', name: 'Manoj Babu Ayilliath Kuttyeri', spouse: 'Jisha P', children: ['A6886', 'A6887'] },
+                { id: 'A5990', name: 'Priya Ayilliath Kuttyeri', spouse: 'Manoj Rayaroth', children: ['A6891', 'A6892'] },
+                { id: 'A5440', name: 'Hari Krishnan', spouse: 'Sruthi R Nair', children: ['A6914'] },
+                { id: 'A5992', name: 'Haritha Krishnan', spouse: 'Akhiljith' },
+                { id: 'A5985', name: 'Arunraj Ayilliath Kuttyeri' },
+                { id: 'A5986', name: 'Anjuraj Ayilliath Kuttyeri', spouse: 'Jithesh Pullayikkodi', children: ['A6905', 'A6906'] },
+                { id: 'A5996', name: 'Athira Ayilliath Kuttyeri', spouse: 'Jaya Vishnu Narambil' },
+                { id: 'A5997', name: 'Adarsh Ayilliath Kuttyeri' }
+            ],
+            gen4: [
+                { id: 'A6271', name: 'Drishya Jayakrishnan' },
+                { id: 'A6882', name: 'Diya Jayakrishnan' },
+                { id: 'A6886', name: 'Ganga Manoj' },
+                { id: 'A6887', name: 'Goutham Manoj' },
+                { id: 'A6891', name: 'Arjun Ayilliath Kuttyeri' },
+                { id: 'A6892', name: 'Adwaith Ayilliath Kuttyeri' },
+                { id: 'A6914', name: 'Yathra Harikrishnan' },
+                { id: 'A6905', name: 'Adhisree Ayilliath Kuttyeri' },
+                { id: 'A6906', name: 'Anvika Ayilliath Kuttyeri' }
+            ]
+        };
+
+        let photos = {};
+        let currentEditId = null;
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        function createPersonCard(person) {
+            const isDeceased = person.death || person.status === 'deceased';
+            const card = document.createElement('div');
+            card.className = `person-card ${isDeceased ? 'deceased' : ''}`;
+            
+            const photoHtml = photos[person.id] 
+                ? `<img src="${photos[person.id]}" alt="${person.name}">`
+                : `<div class="photo-placeholder">${getInitials(person.name)}</div>`;
+            
+            const spouseHtml = person.spouse ? `<div class="spouse">m. ${person.spouse}</div>` : '';
+            const statusHtml = person.status ? `<div class="dates">${person.status}</div>` : '';
+            const deathHtml = person.death ? `<div class="dates">† ${person.death}</div>` : '';
+            
+            card.innerHTML = `
+                <div class="photo-container" onclick="openPhotoModal('${person.id}', '${person.name}')">
+                    ${photoHtml}
+                    <button class="edit-photo-btn" onclick="event.stopPropagation(); openPhotoModal('${person.id}', '${person.name}')">✎</button>
+                </div>
+                <div class="name">${person.name}</div>
+                ${spouseHtml}
+                ${statusHtml}
+                ${deathHtml}
+            `;
+            
+            return card;
+        }
+
+        function renderTree() {
+            const tree = document.getElementById('familyTree');
+            tree.innerHTML = '';
+            
+            // Generation 1
+            const gen1Div = document.createElement('div');
+            gen1Div.className = 'generation';
+            const gen1Label = document.createElement('div');
+            gen1Label.className = 'generation-label';
+            gen1Label.textContent = 'Generation 1';
+            tree.appendChild(gen1Label);
+            familyData.gen1.forEach(person => {
+                gen1Div.appendChild(createPersonCard(person));
+            });
+            tree.appendChild(gen1Div);
+            
+            // Generation 2
+            const gen2Label = document.createElement('div');
+            gen2Label.className = 'generation-label';
+            gen2Label.textContent = 'Generation 2';
+            tree.appendChild(gen2Label);
+            const gen2Div = document.createElement('div');
+            gen2Div.className = 'generation';
+            familyData.gen2.forEach(person => {
+                gen2Div.appendChild(createPersonCard(person));
+            });
+            tree.appendChild(gen2Div);
+            
+            // Generation 3
+            const gen3Label = document.createElement('div');
+            gen3Label.className = 'generation-label';
+            gen3Label.textContent = 'Generation 3';
+            tree.appendChild(gen3Label);
+            const gen3Div = document.createElement('div');
+            gen3Div.className = 'generation';
+            familyData.gen3.forEach(person => {
+                gen3Div.appendChild(createPersonCard(person));
+            });
+            tree.appendChild(gen3Div);
+            
+            // Generation 4
+            const gen4Label = document.createElement('div');
+            gen4Label.className = 'generation-label';
+            gen4Label.textContent = 'Generation 4';
+            tree.appendChild(gen4Label);
+            const gen4Div = document.createElement('div');
+            gen4Div.className = 'generation';
+            familyData.gen4.forEach(person => {
+                gen4Div.appendChild(createPersonCard(person));
+            });
+            tree.appendChild(gen4Div);
+        }
+
+        function openPhotoModal(personId, personName) {
+            currentEditId = personId;
+            document.getElementById('modalPersonName').textContent = personName;
+            document.getElementById('photoModal').style.display = 'flex';
+            document.getElementById('photoUrl').value = photos[personId] || '';
+            document.getElementById('photoInput').value = '';
+        }
+
+        function closeModal() {
+            document.getElementById('photoModal').style.display = 'none';
+            currentEditId = null;
+        }
+
+        function savePhoto() {
+            const fileInput = document.getElementById('photoInput');
+            const urlInput = document.getElementById('photoUrl').value.trim();
+            
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photos[currentEditId] = e.target.result;
+                    renderTree();
+                    closeModal();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else if (urlInput) {
+                photos[currentEditId] = urlInput;
+                renderTree();
+                closeModal();
+            } else {
+                alert('Please select a file or enter a URL');
+            }
+        }
+
+        document.getElementById('photoInput').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                document.getElementById('photoUrl').value = '';
+            }
+        });
+
+        document.getElementById('photoUrl').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('photoInput').value = '';
+            }
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('photoModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        renderTree();
+    </script>
+</body>
+</html>
